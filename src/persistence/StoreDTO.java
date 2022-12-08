@@ -3,13 +3,14 @@ package persistence;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import protocol.MySerializableClass;
 
-import java.io.Serializable;
+import java.io.*;
 
 @Getter
 @Setter
 @ToString
-public class StoreDTO implements Serializable {
+public class StoreDTO implements MySerializableClass {
     private int store_id;
     private String user_id; //점주 누군지 확인용
     private String store_name;
@@ -20,6 +21,40 @@ public class StoreDTO implements Serializable {
     private int store_rate;
     private String store_time;
     private String store_info;
+    private boolean store_ack;
+
+    public StoreDTO(){
+    }
+
+    public StoreDTO(int store_id, String user_id, String store_name, String store_phone, String store_address, boolean store_state, int store_category, int store_rate, String store_time, String store_info, boolean store_ack) {
+    this.store_id=store_id;
+    this.user_id=user_id;
+    this.store_name=store_name;
+    this.store_phone= store_phone;
+    this.store_address=store_address;
+    this.store_state=store_state;
+    this.store_category=store_category;
+    this.store_rate=store_rate;
+    this.store_time=store_time;
+    this.store_info=store_info;
+    this.store_ack=store_ack;
+    }
+
+    public static StoreDTO read(DataInputStream bodyReader) throws IOException {
+        int store_id = bodyReader.readInt();
+        String user_id = bodyReader.readUTF(); //점주 누군지 확인용
+        String store_name = bodyReader.readUTF();
+        String store_phone = bodyReader.readUTF();
+        String store_address = bodyReader.readUTF();
+        boolean store_state = bodyReader.readBoolean();
+        int store_category = bodyReader.readInt();
+        int store_rate = bodyReader.readInt();
+        String store_time = bodyReader.readUTF();
+        String store_info = bodyReader.readUTF();
+        boolean store_ack = bodyReader.readBoolean();
+
+        return new StoreDTO(store_id, user_id, store_name, store_phone, store_address, store_state, store_category, store_rate, store_time, store_info,store_ack);
+    }
 
     public int getStore_id() {
         return store_id;
@@ -99,5 +134,24 @@ public class StoreDTO implements Serializable {
 
     public void setStore_info(String store_info) {
         this.store_info = store_info;
+    }
+
+    @Override
+    public byte[] getBytes() throws IOException {
+        ByteArrayOutputStream buf = new ByteArrayOutputStream();
+        DataOutputStream dos = new DataOutputStream(buf);
+
+        dos.write(store_id);
+        dos.writeUTF(user_id);
+        dos.writeUTF(store_name);
+        dos.writeUTF(store_phone);
+        dos.writeUTF(store_address);
+        dos.writeBoolean(store_state);
+        dos.writeInt(store_category);
+        dos.writeInt(store_rate);
+        dos.writeUTF(store_time);
+        dos.writeUTF(store_info);
+        dos.writeBoolean(store_ack);
+        return buf.toByteArray();
     }
 }
